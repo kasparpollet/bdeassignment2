@@ -1,4 +1,6 @@
 import pandas as pd
+import dask
+from dask import dataframe as dd
 
 from scripts.database import DataBase
 
