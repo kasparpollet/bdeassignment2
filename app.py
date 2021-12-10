@@ -20,7 +20,7 @@ long_center = sum(df['lng'])/len(df['lng'])
 lat_center = sum(df['lat'])/len(df['lat'])
 long_center = sum(df['lng'])/len(df['lng'])
 
-app = dash.Dash(external_stylesheets=['https://codepen.io/amyoshino/pen/jzXypZ.css'])
+app = dash.Dash()
 app.title = 'Open Street Map'
 
 layout_map = dict(
@@ -54,44 +54,45 @@ app.layout = html.Div(
         html.Div([
             html.H1(children='Hotels in Eurpoes major cities'),
 
-    html.Div(id='my-div'),
+            html.Div(id='my-div'),
         ], className = 'row'),
 
         html.Br(),
 
         html.Div([
+
+    
             html.Div([
-        dash_table.DataTable(
+                dcc.Graph(
+                    id='MapPlot',
+                    figure={
+                        "data": [{
+                            "type": "scattermapbox",
+                            "lat": list(df.lat),
+                            "lon": list(df.lng),
+                            "hoverinfo": "text",
+                            "hovertext": list(df['Hotel_Name']),
+                            "mode": "markers",
+                            "name": list(df['Hotel_Name']),
+                            "marker": {
+                                "size": 15,
+                                "opacity": 0.7,
+                                "color": '#F70F0F'
+                            }
+                        }],
+                        "layout": layout_map
+                    }
+                ),
+            ], className = 'six columns'),
+
+            html.Div([
+                dash_table.DataTable(
                         id='table',
                         columns=[{"name": i, "id": i} for i in df1.columns],
                         data=df1.to_dict('records'),
                     ),
             ], className = 'six columns'),
-    
-        html.Div([
-            dcc.Graph(
-            id='MapPlot',
-            figure={
-            "data": [{
-                "type": "scattermapbox",
-                "lat": list(df.lat),
-                "lon": list(df.lng),
-                "hoverinfo": "text",
-                "hovertext": list(df['Hotel_Name']),
-                "mode": "markers",
-                "name": list(df['Hotel_Name']),
-                "marker": {
-                    "size": 15,
-                    "opacity": 0.7,
-                    "color": '#F70F0F'
-                }
-            }],
-            "layout": layout_map
-            }
-            ),
-            ], className = 'six columns')
         ], className = 'row')
-
     ])
 )
 
