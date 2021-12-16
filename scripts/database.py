@@ -1,5 +1,4 @@
 import pandas as pd
-from dask import dataframe as dd
 
 from pymongo import MongoClient
 
@@ -14,15 +13,19 @@ class DataBase:
         print('\nCreating database connection...')
         client = MongoClient("localhost:27017")
         self.db = client["assignment2"]
-        self.collection = database["reviews"]
+        self.collection = self.db["reviews"]
 
-    def get_all(self, collection=self.collection):
+    def get_all(self, collection=None):
         print('\nGetting data...')
-        return pd.DataFrame(list(self.db[collection].find({})))
+        if not collection:
+            collection = self.collection
+        return pd.DataFrame(list(collection.find({})))
 
-    def upload_data(self, df, name, collection=self.collection):
+    def upload_data(self, df, name, collection=None):
         """
         Upload a given pandas dataframe to the database wth a given table name
         """
-        self.db[collection].insert_many(df.to_dict(name))
+        if not collection:
+            collection = self.collection
+        collection.insert_many(df.to_dict(name))
         print('\nSuccessful uploaded data')
