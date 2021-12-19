@@ -7,26 +7,29 @@ import dash_table
 
 
 df = pd.read_csv('files/Hotel_Reviews.csv')
-df.drop_duplicates(subset=["lat"],inplace=True)
+df_old = df
+# print(df_old)
 
-# Subset dataframe to show some specific columns in dash web app
-df1 = df[['Hotel_Name', 'lat', 'lng']]
+print(df_old[df_old['Hotel_Name']=='Hotel Arena'])
 
-# Find Lat Long center
-lat_center = sum(df['lat'])/len(df['lat'])
-long_center = sum(df['lng'])/len(df['lng'])
+extra = []
+hotels = df_old.Hotel_Name.unique()
+# for hotel in hotels:
+#     reviews = df_old[df_old['Hotel_Name']==hotel]
+#     avr_score = round(reviews.Reviewer_Score.mean(),2)
+#     number_of_reviews = len(reviews)
+#     extra.append([f'{hotel}, {avr_score} out of {number_of_reviews}'])
 
-# Find Lat Long center
-lat_center = sum(df['lat'])/len(df['lat'])
-long_center = sum(df['lng'])/len(df['lng'])
+
+df.drop_duplicates(subset=["Hotel_Name"],inplace=True)
 
 app = dash.Dash()
-app.title = 'Open Street Map'
+app.title = 'Hotels'
 
 layout_map = dict(
     autosize=True,
-    height=500,
-    weidth=100,
+    height=600,
+    width=1000,
     font=dict(color="#191A1A"),
     titlefont=dict(color="#191A1A", size='14'),
     margin=dict(
@@ -42,26 +45,24 @@ layout_map = dict(
     mapbox=dict(
         style="open-street-map",
         center=dict(
-            lon = long_center,
-            lat = lat_center
+            lon = df['lng'].mean(),
+            lat = df['lat'].mean()
         ),
-        zoom=2,
+        zoom=4,
     )
 )
 
 app.layout = html.Div(
     html.Div([
         html.Div([
-            html.H1(children='Hotels in Eurpoes major cities'),
+            html.H1(children='Hotels in Europes major cities'),
 
             html.Div(id='my-div'),
         ], className = 'row'),
 
-        html.Br(),
+        # html.Br(),
 
         html.Div([
-
-    
             html.Div([
                 dcc.Graph(
                     id='MapPlot',
@@ -71,27 +72,31 @@ app.layout = html.Div(
                             "lat": list(df.lat),
                             "lon": list(df.lng),
                             "hoverinfo": "text",
-                            "hovertext": list(df['Hotel_Name']),
+                            "hovertext": extra,
                             "mode": "markers",
                             "name": list(df['Hotel_Name']),
                             "marker": {
                                 "size": 15,
                                 "opacity": 0.7,
-                                "color": '#F70F0F'
+                                "color": '#F70F0F',
                             }
                         }],
                         "layout": layout_map
-                    }
+                    }                    
                 ),
-            ], className = 'six columns'),
+            ], className = 'six columns', style={'display': 'inline-block'}),
 
             html.Div([
-                dash_table.DataTable(
-                        id='table',
-                        columns=[{"name": i, "id": i} for i in df1.columns],
-                        data=df1.to_dict('records'),
-                    ),
+                html.H4(children='Hotels in Europes major cities', style={'display': 'inline-block'}),
             ], className = 'six columns'),
+
+            # html.Div([
+            #     dash_table.DataTable(
+            #             id='table',
+            #             columns=[{"name": i, "id": i} for i in df.columns],
+            #             data=df.to_dict('records'),
+            #         ),
+            # ], className = 'six columns'),
         ], className = 'row')
     ])
 )

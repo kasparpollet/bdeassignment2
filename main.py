@@ -11,6 +11,7 @@ def get_hotels_from_file():
 
 if __name__ == "__main__":
 
-    db = DataBase()
-    df = db.get_all()
-    print(df)
+    # db = DataBase()
+    # df = db.get_all()
+    # print(df)
+    import keras
