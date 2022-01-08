@@ -13,7 +13,7 @@ class DataBase:
         print('\nCreating database connection...')
         client = MongoClient("localhost:27017")
         self.db = client["assignment2"]
-        self.collection = self.db["reviews"]
+        self.collection = self.db[collection]
 
     def get_all(self, collection=None):
         print('\nGetting data...')
@@ -25,7 +25,10 @@ class DataBase:
         """
         Upload a given pandas dataframe to the database wth a given table name
         """
-        if not collection:
+        if collection is not None:
             collection = self.collection
         collection.insert_many(df.to_dict(name))
         print('\nSuccessful uploaded data')
+
+    def test(self, df):
+        self.db['labeled_reviews'].insert_many(df.to_dict('labeled_reviews'))
