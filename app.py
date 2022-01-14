@@ -53,19 +53,6 @@ app.layout = html.Div(
             html.Div(id='table-container')
         ]),
 
-        # html.Div(
-        #     children=[html.H4(children='Hotels'),
-        #     dcc.Dropdown(
-        #         id='select_hotel',
-        #         options=[{'label': i, 'value': i} for i in df_old.Hotel_Name.unique()],
-        #         multi=True, placeholder='Filter by Hotel'),
-        #     html.Div(id='table-container')
-        # ]),
-
-        # html.Div([
-        #     html.Div(className = 'six columns', style={'display': 'inline-block'}, id='map'),
-        # ], className = 'row'),
-
         html.Div(id='tab-content'),
 
         # html.Div([
