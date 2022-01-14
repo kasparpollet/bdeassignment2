@@ -54,13 +54,6 @@ app.layout = html.Div(
         ]),
 
         html.Div(id='tab-content'),
-
-        # html.Div([
-            # html.Div(className = 'six columns', id='number_of_reviews'),
-            # html.Div(className = 'six columns', id='avarage_score'),
-            # html.Div(className = 'six columns', id='tags'),
-            # html.Div(className = 'six columns', id='score_amount'),
-        # ], className = 'row')
     ])
 )
 
