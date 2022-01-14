@@ -27,19 +27,21 @@ for hotel in hotels:
 
 df.drop_duplicates(subset=["Hotel_Name"],inplace=True)
 
-app = dash.Dash()
+app = dash.Dash(suppress_callback_exceptions=True)
 app.title = 'Hotels'
 
 app.layout = html.Div(
     html.Div([
+
+        dcc.Tabs(id="tabs", value='tabs', children=[
+            dcc.Tab(label='Overview', value='tab-1'),
+            dcc.Tab(label='Extra Information', value='tab-2'),
+        ]),
+
         html.Div([
             html.H1(children='Hotels in Europes major cities'),
 
             html.Div(id='my-div'),
-        ], className = 'row'),
-
-        html.Div([
-            html.Div(className = 'six columns', style={'display': 'inline-block'}, id='map'),
         ], className = 'row'),
 
         html.Div(
@@ -51,32 +53,49 @@ app.layout = html.Div(
             html.Div(id='table-container')
         ]),
 
-        html.Div([
-            html.Div(className = 'six columns', id='number_of_reviews'),
-            html.Div(className = 'six columns', id='avarage_score'),
-            html.Div(className = 'six columns', id='score_amount'),
-            html.Div(className = 'six columns', id='tags'),
+        # html.Div(
+        #     children=[html.H4(children='Hotels'),
+        #     dcc.Dropdown(
+        #         id='select_hotel',
+        #         options=[{'label': i, 'value': i} for i in df_old.Hotel_Name.unique()],
+        #         multi=True, placeholder='Filter by Hotel'),
+        #     html.Div(id='table-container')
+        # ]),
 
-            # html.Div([
-            #     html.H4(children='Hotels in Europes major cities', style={'display': 'inline-block'}),
-            # ], className = 'six columns'),
+        # html.Div([
+        #     html.Div(className = 'six columns', style={'display': 'inline-block'}, id='map'),
+        # ], className = 'row'),
 
-            # html.Div([
-            #     dash_table.DataTable(
-            #             id='table',
-            #             columns=[{"name": i, "id": i} for i in df.columns],
-            #             data=df.to_dict('records'),
-            #         ),
-            # ], className = 'six columns'),
-        ], className = 'row')
+        html.Div(id='tab-content'),
+
+        # html.Div([
+            # html.Div(className = 'six columns', id='number_of_reviews'),
+            # html.Div(className = 'six columns', id='avarage_score'),
+            # html.Div(className = 'six columns', id='tags'),
+            # html.Div(className = 'six columns', id='score_amount'),
+        # ], className = 'row')
     ])
 )
+
+@app.callback(Output('tab-content', 'children'),
+              Input('tabs', 'value'),)
+def render_content(tab):
+    if tab == 'tab-2':
+        return html.Div([
+            html.Div(className = 'six columns', id='number_of_reviews'),
+            html.Div(className = 'six columns', id='avarage_score'),
+            html.Div(className = 'six columns', id='tags'),
+            html.Div(className = 'six columns', id='score_amount'),
+        ], className = 'row')
+    else: # tab == 'tab-1':
+        return html.Div([
+            html.Div(className = 'six columns', style={'display': 'inline-block', 'margin-top': '20px'}, id='map'),
+        ], className = 'row'),
 
 
 @app.callback(
     Output("number_of_reviews", "children"), 
-    Input("select_hotel", "value")
-)
+    Input("select_hotel", "value"),)
 def update_number_of_reviews(hotels):
     number_of_reviews_per_hotel = db.get_amount_of_reviews_per_hotel(hotels)
     return dcc.Graph(
@@ -92,8 +111,7 @@ def update_number_of_reviews(hotels):
 
 @app.callback(
     Output("avarage_score", "children"), 
-    Input("select_hotel", "value")
-)
+    Input("select_hotel", "value"),)
 def update_avarage_score(hotels):
     avarage_score_per_hotel = db.get_avarage_score_per_hotel(hotels)
     return dcc.Graph(
@@ -109,8 +127,7 @@ def update_avarage_score(hotels):
 
 @app.callback(
     Output("score_amount", "children"), 
-    Input("select_hotel", "value")
-)
+    Input("select_hotel", "value"),)
 def update_amount_of_scores(hotels):
     amount_of_scores = db.get_how_many_times_a_score_has_been_given(hotels)
     return dcc.Graph(
@@ -126,8 +143,7 @@ def update_amount_of_scores(hotels):
 
 @app.callback(
     Output("tags", "children"), 
-    Input("select_hotel", "value")
-)
+    Input("select_hotel", "value"),)
 def update_tags(hotels):
     tags = db.test(hotels)
     return dcc.Graph(
@@ -143,8 +159,7 @@ def update_tags(hotels):
 
 @app.callback(
     Output("map", "children"), 
-    Input("select_hotel", "value")
-)
+    Input("select_hotel", "value"),)
 def update_map(hotels):
 
     if hotels:
