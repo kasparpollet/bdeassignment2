@@ -31,14 +31,6 @@ class Keras:
         self.embedding_dims = embedding_dims
 
 class RNN(Keras):
-    # def __init__(self, df, max_words=5000, batch_size=250, no_epochs=6, validation_split=0.2, verbosity=1):
-    #     self.df = df
-    #     self.max_words = max_words
-    #     self.batch_size = batch_size
-    #     self.no_epochs = no_epochs
-    #     self.validation_split = validation_split
-    #     self.verbosity = verbosity
-
     def create(self):
         print('\nStart creating RNN...')
         start = time.time()
@@ -105,7 +97,6 @@ class RNN(Keras):
 
 
 class CNN(Keras):
-
     def create(self):
         print('\nStart creating CNN...')
         start = time.time()

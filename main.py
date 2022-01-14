@@ -26,7 +26,6 @@ def display_wordcloud(reviews):
     plt.axis("off")
     plt.show()
 
-
 def get_labeled_reviews(df):
     positive_reviews = (
         df[['Positive_Review']].copy()
@@ -65,5 +64,5 @@ if __name__ == "__main__":
     # display_wordcloud(df.Negative_Review)
     # import keras
 
-    model = RNN(df, max_words=5000, batch_size=20, no_epochs=6, validation_split=0.2, verbosity=1, embedding_dims=128)
+    model = RNN(df, max_words=5000, batch_size=256, no_epochs=6, validation_split=0.2, verbosity=1, embedding_dims=128)
     model.create()
