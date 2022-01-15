@@ -9,7 +9,7 @@ from sklearn.metrics import classification_report, confusion_matrix, accuracy_sc
 from keras.preprocessing.text import one_hot
 from keras.preprocessing.sequence import pad_sequences
 from keras.preprocessing.text import Tokenizer
-from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.optimizers import Adam, SGD
 
 from keras.models import Sequential, save_model, load_model
 
@@ -18,9 +18,16 @@ from keras.layers import Flatten, Dense, LSTM, Bidirectional, Dropout
 from keras.layers.embeddings import Embedding
 from keras.layers.convolutional import Conv1D, MaxPooling1D
 
+from sklearn.pipeline import Pipeline
+# from dask_ml.model_selection import GridSearchCV
+from keras.layers import Dense, Input, Dropout
+from keras import Sequential
+from keras.wrappers.scikit_learn import KerasClassifier
+from sklearn.model_selection import StratifiedKFold
+
 
 class Keras:
-    def __init__(self, df, max_words=5000, batch_size=250, no_epochs=6, validation_split=0.2, verbosity=1, max_len=50, embedding_dims=None):
+    def __init__(self, df, max_words=5000, batch_size=250, no_epochs=6, validation_split=0.2, verbosity=1, max_len=50, optimizer='Adam', learning_rate=3e-4, embedding_dims=None):
         self.df = df
         self.max_words = max_words
         self.batch_size = batch_size
@@ -28,6 +35,8 @@ class Keras:
         self.validation_split = validation_split
         self.verbosity = verbosity
         self.max_len = max_len
+        self.optimizer = optimizer
+        self.learning_rate = learning_rate
         self.embedding_dims = embedding_dims
 
 class RNN(Keras):
@@ -55,12 +64,15 @@ class RNN(Keras):
 
         # create the model
         model = Sequential()
-        model.add(Embedding(vocab_size, 32, input_length=self.max_len))
+        model.add(Embedding(vocab_size, 64, input_length=self.max_len))
         model.add(Flatten())
         model.add(Dense(250, activation='relu'))
         model.add(Dense(1, activation='sigmoid'))
 
-        optimizer = Adam(learning_rate=3e-4)
+        if self.optimizer == 'SGD':
+            optimizer = SGD(learning_rate=self.learning_rate)
+        else:
+            optimizer = Adam(learning_rate=self.learning_rate)
 
         model.compile(loss='binary_crossentropy', optimizer=optimizer, metrics=['acc'])
         print(model.summary())
@@ -86,14 +98,15 @@ class RNN(Keras):
         print(f'Classification Report:\n', classification_report(y_test, y_prediction))
 
 
-        # plt.plot(history.history['acc'])
-        # plt.plot(history.history['val_acc'])
+        plt.plot(history.history['acc'])
+        plt.plot(history.history['val_acc'])
 
-        # plt.title('model accuracy')
-        # plt.ylabel('accuracy')
-        # plt.xlabel('epoch')
-        # plt.legend(['train','test'], loc='upper left')
-        # plt.show()
+        plt.title('model accuracy')
+        plt.ylabel('accuracy')
+        plt.xlabel('epoch')
+        plt.legend(['train','test'], loc='upper left')
+        plt.show()
+
 
 
 class CNN(Keras):
@@ -127,7 +140,7 @@ class CNN(Keras):
         model.add(Conv1D(128, kernel_size=4, input_shape=(vocab_size, self.embedding_dims),activation="relu"))
         model.add(MaxPooling1D(pool_size=3))
         model.add(Bidirectional(LSTM(64, return_sequences=True)))
-        model.add(LSTM(32, recurrent_dropout=0.4))
+        # model.add(LSTM(32, recurrent_dropout=0.4))
         model.add(Dropout(0.2))
         model.add(Dense(1, activation="sigmoid"))
         model.summary()
@@ -182,3 +195,60 @@ def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix'
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
     plt.show()
+
+def create_model():
+    optimizer=SGD(learning_rate=0.1)
+
+    model = Sequential()
+    model.add(Embedding(vocab_size, 64, input_length=100))
+    model.add(Flatten())
+    model.add(Dense(250, activation='relu'))
+    model.add(Dense(1, activation='sigmoid'))
+    model.compile(loss='binary_crossentropy', optimizer=optimizer, metrics=['acc'])
+    return model
+    # history=model.fit(X_train, y_train, batch_size=self.batch_size, epochs=self.no_epochs, verbose=self.verbosity, validation_split=self.validation_split)
+
+
+def dask_grid_search(df):
+    start = time.time()
+
+    X = self.df.Review
+    y = self.df.Label
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+    tokenizer = Tokenizer(num_words=5000)
+    tokenizer.fit_on_texts(X_train)
+
+    X_train = tokenizer.texts_to_sequences(X_train)
+    X_test = tokenizer.texts_to_sequences(X_test)
+
+    X_train = pad_sequences(X_train, padding='post', maxlen=100)
+    X_test = pad_sequences(X_test, padding='post', maxlen=100)
+
+    vocab_size = len(tokenizer.word_index) + 1
+
+    estimators = []
+    estimators.append(('pf', PolynomialFeatures(interaction_only=True,
+                                                include_bias=False)))
+    estimators.append(('ss', StandardScaler()))
+    estimators.append(('nn', KerasClassifier(build_fn=create_model, epochs=4, batch_size=500, verbose=1)))
+    nn_pipe = Pipeline(estimators)
+
+    nn_param_grid = {
+        'nn__epochs': [2, 3, 4],
+        'nn__batch_size':[500, 200],
+        # 'nn__batch_size':[500, 200],
+        # 'nn__batch_size':[500, 200],
+        # 'nn__batch_size':[500, 200],
+    }
+
+    grid_search = GridSearchCV(nn_pipe, nn_param_grid, verbose=1, cv=3)
+    grid_search.fit(X_train, y_train)
+
+    end = time.time()
+
+
+    print(f'Finished getting parameters in {end - start} seconds')
+    print(f'Best score: {grid_search.best_score_}')
+    print(f'Best parameters: {grid_search.best_estimator_.get_params()["model"]}')

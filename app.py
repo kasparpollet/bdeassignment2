@@ -125,7 +125,7 @@ def update_amount_of_scores(hotels):
     Output("tags", "children"), 
     Input("select_hotel", "value"),)
 def update_tags(hotels):
-    tags = db.test(hotels)
+    tags = db.get_tags(hotels)
     return dcc.Graph(
         figure={
             'data': [

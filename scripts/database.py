@@ -1,4 +1,6 @@
 import pandas as pd
+from dask import dataframe as dd
+import dask
 
 from pymongo import MongoClient
 from bson.son import SON
@@ -229,7 +231,7 @@ class DataBase:
             final[i['Reviewer_Score']] = round(i['COUNT(*)'],1)
         return final
 
-    def test(self, hotel_names=None):
+    def get_tags(self, hotel_names=None):
 
         map = Code('''function() {
                 test = this.Tags.replace(/'/g, '"');

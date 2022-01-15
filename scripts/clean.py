@@ -3,7 +3,7 @@ import pandas as pd
 
 import nltk           
 from nltk.corpus import stopwords
-# nltk.download("stopwords")
+# nltk.download("dstopwords")
 
 
 class Clean:
@@ -30,7 +30,7 @@ class Clean:
         # Remove empty reviews
         df = df.loc[lambda x: x['Review'] != '']
 
-        df.reset_index(inplace=True, drop=True)
+        df = df.reset_index(drop=True)
 
         end = time.time()
         print(f'Finished cleaning the dataframe in {str(end-start)} seconds')

@@ -54,8 +54,11 @@ if __name__ == "__main__":
     db = DataBase()
     df = db.get_all()
     df = get_labeled_reviews(df)
+    # df = dd.from_pandas(df, npartitions=3)            
     df = Clean(df).df
     # print(df)
+
+    # keras.grid_search(df)
 
     # db.upload_data(df, name='labeled_reviews', collection=db.db['labeled_reviews'])
     # db.test(df)
@@ -64,5 +67,23 @@ if __name__ == "__main__":
     # display_wordcloud(df.Negative_Review)
     # import keras
 
-    model = RNN(df, max_words=5000, batch_size=256, no_epochs=6, validation_split=0.2, verbosity=1, embedding_dims=128)
+    # model = RNN(df, max_words=5000, batch_size=250, no_epochs=6, validation_split=0.2, verbosity=1, max_len=50, optimizer='Adam', learning_rate=0.001, embedding_dims=None)
+    # model.create()
+    # model = RNN(df, max_words=5000, batch_size=250, no_epochs=6, validation_split=0.2, verbosity=1, max_len=50, optimizer='Adam', learning_rate=0.01, embedding_dims=None)
+    # model.create()
+    # model = RNN(df, max_words=5000, batch_size=250, no_epochs=6, validation_split=0.2, verbosity=1, max_len=50, optimizer='SGD', learning_rate=0.001, embedding_dims=None)
+    # model.create()
+    # model = RNN(df, max_words=5000, batch_size=250, no_epochs=4, validation_split=0.2, verbosity=1, max_len=20, optimizer='SGD', learning_rate=0.1, embedding_dims=None)
+    # model.create()
+    # model = RNN(df, max_words=5000, batch_size=250, no_epochs=4, validation_split=0.2, verbosity=1, max_len=50, optimizer='SGD', learning_rate=0.1, embedding_dims=None)
+    # model.create()
+    # model = RNN(df, max_words=5000, batch_size=250, no_epochs=4, validation_split=0.2, verbosity=1, max_len=80, optimizer='SGD', learning_rate=0.1, embedding_dims=None)
+    # model.create()
+    # model = RNN(df, max_words=5000, batch_size=500, no_epochs=4, validation_split=0.2, verbosity=1, max_len=100, optimizer='SGD', learning_rate=0.1, embedding_dims=None)
+    # model.create()
+    # model = RNN(df, max_words=5000, batch_size=250, no_epochs=4, validation_split=0.2, verbosity=1, max_len=100, optimizer='SGD', learning_rate=0.1, embedding_dims=None)
+    # model.create()
+    # model = RNN(df, max_words=5000, batch_size=100, no_epochs=4, validation_split=0.2, verbosity=1, max_len=100, optimizer='SGD', learning_rate=0.1, embedding_dims=None)
+    # model.create()
+    model = RNN(df, max_words=5000, batch_size=20, no_epochs=2, validation_split=0.2, verbosity=1, max_len=100, optimizer='SGD', learning_rate=0.1, embedding_dims=None)
     model.create()
